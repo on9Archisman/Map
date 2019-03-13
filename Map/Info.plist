@@ -33,6 +33,6 @@
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Application requires your location access to show you in map</string>
+	<string>Application requires your location access</string>
 </dict>
 </plist>

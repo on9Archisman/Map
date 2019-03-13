@@ -8,9 +8,12 @@
 
 import UIKit
 import CoreLocation
+import MapKit
 
-class ViewController: UIViewController, CLLocationManagerDelegate
+class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDelegate
 {
+    @IBOutlet weak var mapView: MKMapView!
+    
     let locationManager = CLLocationManager()
     
     override func viewDidLoad()
@@ -19,11 +22,12 @@ class ViewController: UIViewController, CLLocationManagerDelegate
         
         // MARK: CLLocation
         locationManager.delegate = self
-//        locationManager.distanceFilter = kCLDistanceFilterNone
-//        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
         
+        /*
         let status = CLLocationManager.authorizationStatus()
         handleLocationAuthorizationStatus(status: status)
+        */
     }
     
     func handleLocationAuthorizationStatus(status: CLAuthorizationStatus)
@@ -32,14 +36,14 @@ class ViewController: UIViewController, CLLocationManagerDelegate
         
         switch status
         {
-        case .notDetermined:
+        case .notDetermined, .denied, .restricted:
             print("Location services is not determined")
             locationManager.requestWhenInUseAuthorization()
             
         case .authorizedWhenInUse, .authorizedAlways:
             print("Location services is running")
             locationManager.startUpdatingLocation()
-            
+        /*
         case .denied:
             print("Location services were previously denied. Please enable location services for this app in Settings")
             statusDeniedAlert()
@@ -47,15 +51,17 @@ class ViewController: UIViewController, CLLocationManagerDelegate
         case .restricted:
             print("Access to location services is restricted. Please enable location services for this app in Settings")
             statusDeniedAlert()
+        */
         }
     }
     
+    /*
     func statusDeniedAlert()
     {
         let alertController = UIAlertController(title: "Location Access Disabled", message: "In order to show the location on map, please open this app's settings and set location access to 'While Using'", preferredStyle: .alert)
         
         alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-        alertController.addAction(UIAlertAction(title: "Open Settings", style: .`default`, handler: { action in
+        alertController.addAction(UIAlertAction(title: "Open Settings", style: .default, handler: { action in
             
             let settingsURL = URL(string: UIApplication.openSettingsURLString)
             UIApplication.shared.open(settingsURL!, options: [:], completionHandler: nil)
@@ -63,6 +69,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate
         
         self.present(alertController, animated: true, completion: nil)
     }
+    */
     
     // MARK: CLLocation Manager Delegate
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus)
@@ -72,16 +79,28 @@ class ViewController: UIViewController, CLLocationManagerDelegate
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation])
     {
+        locationManager.stopUpdatingLocation()
+        
         if let currentLocation = locations.last
         {
             print("CLLocationManager Location = \(currentLocation.coordinate.latitude), \(currentLocation.coordinate.longitude)")
             
-            locationManager.stopUpdatingLocation()
+            let span: MKCoordinateSpan = MKCoordinateSpan.init(latitudeDelta: 0.002, longitudeDelta: 0.002)
+            
+            let region: MKCoordinateRegion = MKCoordinateRegion.init(center: currentLocation.coordinate, span: span)
+            
+            mapView.setRegion(region, animated: true)
         }
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error)
     {
         print("CLLocationManager Error = \(error)")
+    }
+    
+    // MARK: MKMapView Delegate
+    func mapView(_ mapView: MKMapView, didUpdate userLocation: MKUserLocation)
+    {
+        print("Map View Delegates : Did Update User Location = \(userLocation.coordinate.latitude), \(userLocation.coordinate.longitude)")
     }
 }
