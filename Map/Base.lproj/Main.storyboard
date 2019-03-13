@@ -18,20 +18,39 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" showsUserLocation="YES" translatesAutoresizingMaskIntoConstraints="NO" id="zWK-sI-vfs">
+                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" showsUserLocation="YES" showsScale="YES" showsTraffic="YES" translatesAutoresizingMaskIntoConstraints="NO" id="zWK-sI-vfs">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <connections>
                                     <outlet property="delegate" destination="BYZ-38-t0r" id="iNb-Ox-TjU"/>
                                 </connections>
                             </mapView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="detailDisclosure" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TGD-Ff-gvC">
+                                <rect key="frame" x="264" y="512" width="40" height="40"/>
+                                <color key="backgroundColor" red="0.99999600649999998" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="D7Z-Hk-jHd"/>
+                                    <constraint firstAttribute="width" constant="40" id="Fp2-XE-Zhs"/>
+                                </constraints>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                        <integer key="value" value="10"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
+                                </userDefinedRuntimeAttributes>
+                                <connections>
+                                    <action selector="actionMapType:" destination="BYZ-38-t0r" eventType="touchUpInside" id="TG4-90-9fc"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstAttribute="bottom" secondItem="zWK-sI-vfs" secondAttribute="bottom" id="Mv7-FQ-weh"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="TGD-Ff-gvC" secondAttribute="bottom" constant="16" id="RIe-tt-4JY"/>
                             <constraint firstAttribute="trailing" secondItem="zWK-sI-vfs" secondAttribute="trailing" id="WUf-Ft-zti"/>
                             <constraint firstItem="zWK-sI-vfs" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="kR7-5V-hGW"/>
                             <constraint firstItem="zWK-sI-vfs" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="uhr-py-lFg"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="TGD-Ff-gvC" secondAttribute="trailing" constant="16" id="wSi-Is-nC4"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
