@@ -100,6 +100,87 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         print("Map View Delegates : Did Update User Location = \(userLocation.coordinate.latitude), \(userLocation.coordinate.longitude)")
     }
     
+    func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer
+    {
+        let renderer = MKPolylineRenderer(overlay: overlay)
+        
+        renderer.strokeColor = UIColor.blue
+        renderer.lineWidth = 3.0
+        
+        return renderer
+    }
+    
+    @IBAction func actionUserLocation(_ sender: Any)
+    {
+        locationManager.startUpdatingLocation()
+    }
+    
+    @IBAction func actionPinDescription(_ sender: Any)
+    {
+        let alertController = UIAlertController(title: "Drop a Pin", message: "Please tap into the map, Pin automatically placed on that location", preferredStyle: .actionSheet)
+        
+        alertController.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: { action in
+            
+            self.dismiss(animated: true, completion: nil)
+        }))
+        
+        self.present(alertController, animated: true, completion: nil)
+    }
+    
+    @IBAction func actionAddPinIntoMap(_ sender: UITapGestureRecognizer)
+    {
+        let location = sender.location(in: mapView)
+        print("Location = \(location)")
+        
+        let coordinate: CLLocationCoordinate2D = mapView.convert(location, toCoordinateFrom: mapView)
+        print("Coordinate = \(coordinate)")
+        
+        let annotation = MKPointAnnotation()
+        
+        annotation.coordinate = coordinate
+        annotation.title = "Pin"
+        annotation.subtitle = "Destination"
+        
+        mapView.removeAnnotations(mapView.annotations)
+        
+        mapView.addAnnotation(annotation)
+        
+        if let userLocation = locationManager.location?.coordinate
+        {
+            let sourcePlaceMark = MKPlacemark(coordinate: userLocation)
+            let destinationPlaceMark = MKPlacemark(coordinate: coordinate)
+            
+            let directionRequest = MKDirections.Request()
+            directionRequest.source = MKMapItem(placemark: sourcePlaceMark)
+            directionRequest.destination = MKMapItem(placemark: destinationPlaceMark)
+            directionRequest.transportType = .automobile
+            
+            let directions = MKDirections(request: directionRequest)
+            directions.calculate { (response, error) in
+                guard let directionResonse = response
+                    else
+                {
+                    if let error = error
+                    {
+                        print("we have error getting directions = \(error.localizedDescription)")
+                    }
+                    return
+                }
+                
+                //get route and assign to our route variable
+                let route = directionResonse.routes[0]
+                
+                //add rout to our mapview
+                self.mapView.removeOverlays(self.mapView.overlays)
+                self.mapView.addOverlay(route.polyline, level: .aboveRoads)
+                
+                //setting rect of our mapview to fit the two locations
+                let rect = route.polyline.boundingMapRect
+                self.mapView.setRegion(MKCoordinateRegion(rect), animated: true)
+            }
+        }
+    }
+    
     @IBAction func actionMapType(_ sender: Any)
     {
         let actionSheet = UIAlertController(title: "The type of map to display", message: "Please select !!", preferredStyle: .actionSheet)
