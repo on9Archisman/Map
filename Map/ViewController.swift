@@ -15,6 +15,8 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
     @IBOutlet weak var mapView: MKMapView!
     
     let locationManager = CLLocationManager()
+    var route: MKRoute?
+    var flag = false
     
     override func viewDidLoad()
     {
@@ -104,10 +106,42 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
     {
         let renderer = MKPolylineRenderer(overlay: overlay)
         
-        renderer.strokeColor = UIColor.blue
+        if (mapView.mapType == .standard || mapView.mapType == .mutedStandard)
+        {
+            renderer.strokeColor = UIColor.purple
+        }
+        else if (mapView.mapType == .satellite || mapView.mapType == .satelliteFlyover)
+        {
+            renderer.strokeColor = UIColor.yellow
+        }
+        else
+        {
+            renderer.strokeColor = UIColor.white
+        }
+        
         renderer.lineWidth = 3.0
         
         return renderer
+    }
+    
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView?
+    {
+        if annotation is MKUserLocation
+        {
+            /*
+            let annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: "user") ?? MKAnnotationView()
+            annotationView.image = UIImage(named: "iconUserLocation")
+            return annotationView
+            */
+            
+            return nil
+        }
+        else
+        {
+            let annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: "rest") ?? MKAnnotationView()
+            annotationView.image = UIImage(named: "iconPin")
+            return annotationView
+        }
     }
     
     // MARK: IBAction
@@ -169,14 +203,15 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
                 }
                 
                 //get route and assign to our route variable
-                let route = directionResonse.routes[0]
+                self.route = directionResonse.routes[0]
+                self.flag = true
                 
                 //add rout to our mapview
                 self.mapView.removeOverlays(self.mapView.overlays)
-                self.mapView.addOverlay(route.polyline, level: .aboveRoads)
+                self.mapView.addOverlay(self.route!.polyline, level: .aboveRoads)
                 
                 //setting rect of our mapview to fit the two locations
-                let rect = route.polyline.boundingMapRect
+                let rect = self.route!.polyline.boundingMapRect
                 self.mapView.setRegion(MKCoordinateRegion(rect), animated: true)
             }
         }
@@ -186,46 +221,22 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
     {
         let actionSheet = UIAlertController(title: "The type of map to display", message: "Please select !!", preferredStyle: .actionSheet)
         
-        let actionButtonStandard = UIAlertAction(title: "Standard", style: .default, handler: { action in
-            
-            self.mapView.mapType = .standard
-        })
-        
+        let actionButtonStandard = UIAlertAction(title: "Standard", style: .default, handler: alertAction)
         actionSheet.addAction(actionButtonStandard)
         
-        let actionButtonSatellite = UIAlertAction(title: "Satellite", style: .default, handler: { action in
-            
-            self.mapView.mapType = .satellite
-        })
-        
+        let actionButtonSatellite = UIAlertAction(title: "Satellite", style: .default, handler: alertAction)
         actionSheet.addAction(actionButtonSatellite)
         
-        let actionButtonHybrid = UIAlertAction(title: "Hybrid", style: .default, handler: { action in
-            
-            self.mapView.mapType = .hybrid
-        })
-        
+        let actionButtonHybrid = UIAlertAction(title: "Hybrid", style: .default, handler: alertAction)
         actionSheet.addAction(actionButtonHybrid)
         
-        let actionButtonMutedStandard = UIAlertAction(title: "Muted Standard", style: .default, handler: { action in
-            
-            self.mapView.mapType = .mutedStandard
-        })
-        
+        let actionButtonMutedStandard = UIAlertAction(title: "Muted Standard", style: .default, handler: alertAction)
         actionSheet.addAction(actionButtonMutedStandard)
         
-        let actionButtonSatelliteFlyover = UIAlertAction(title: "Satellite Flyover", style: .default, handler: { action in
-            
-            self.mapView.mapType = .satelliteFlyover
-        })
-        
+        let actionButtonSatelliteFlyover = UIAlertAction(title: "Satellite Flyover", style: .default, handler: alertAction)
         actionSheet.addAction(actionButtonSatelliteFlyover)
         
-        let actionButtonHybridFlyover = UIAlertAction(title: "Hybrid Flyover", style: .default, handler: { action in
-            
-            self.mapView.mapType = .hybridFlyover
-        })
-        
+        let actionButtonHybridFlyover = UIAlertAction(title: "Hybrid Flyover", style: .default, handler: alertAction)
         actionSheet.addAction(actionButtonHybridFlyover)
         
         let actionButtonCancel = UIAlertAction(title: "Cancel", style: .cancel, handler: { action in
@@ -236,5 +247,33 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         actionSheet.addAction(actionButtonCancel)
         
         self.present(actionSheet, animated: true, completion: nil)
+    }
+    
+    func alertAction(action: UIAlertAction)
+    {
+        switch action.title
+        {
+        case "Standard":
+            self.mapView.mapType = .standard
+        case "Satellite":
+            self.mapView.mapType = .satellite
+        case "Hybrid":
+            self.mapView.mapType = .hybrid
+        case "Muted Standard":
+            self.mapView.mapType = .mutedStandard
+        case "Satellite Flyover":
+            self.mapView.mapType = .satelliteFlyover
+        case "Hybrid Flyover":
+            self.mapView.mapType = .hybridFlyover
+        default:
+            break
+        }
+        
+        if (self.flag)
+        {
+            //add rout to our mapview
+            self.mapView.removeOverlays(self.mapView.overlays)
+            self.mapView.addOverlay(self.route!.polyline, level: .aboveRoads)
+        }
     }
 }

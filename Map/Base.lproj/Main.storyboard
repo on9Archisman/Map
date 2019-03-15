@@ -29,7 +29,7 @@
                             </mapView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="detailDisclosure" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TGD-Ff-gvC">
                                 <rect key="frame" x="264" y="512" width="40" height="40"/>
-                                <color key="backgroundColor" red="0.99942404029999998" green="0.98555368190000003" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="backgroundColor" red="0.83216959239999999" green="0.98548370600000001" blue="0.47333085539999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="D7Z-Hk-jHd"/>
                                     <constraint firstAttribute="width" constant="40" id="Fp2-XE-Zhs"/>
@@ -102,7 +102,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="iconPin" width="72" height="72"/>
-        <image name="iconUserLocation" width="72" height="72"/>
+        <image name="iconPin" width="48" height="48"/>
+        <image name="iconUserLocation" width="48" height="48"/>
     </resources>
 </document>
