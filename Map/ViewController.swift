@@ -110,6 +110,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         return renderer
     }
     
+    // MARK: IBAction
     @IBAction func actionUserLocation(_ sender: Any)
     {
         locationManager.startUpdatingLocation()
@@ -117,7 +118,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
     
     @IBAction func actionPinDescription(_ sender: Any)
     {
-        let alertController = UIAlertController(title: "Drop a Pin", message: "Please tap into the map, Pin automatically placed on that location", preferredStyle: .actionSheet)
+        let alertController = UIAlertController(title: "Drop a Pin", message: "Please long press into the map, Pin automatically placed on that location", preferredStyle: .actionSheet)
         
         alertController.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: { action in
             
@@ -127,7 +128,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         self.present(alertController, animated: true, completion: nil)
     }
     
-    @IBAction func actionAddPinIntoMap(_ sender: UITapGestureRecognizer)
+    @IBAction func actionAddAnnotationWithLongGesture(_ sender: UILongPressGestureRecognizer)
     {
         let location = sender.location(in: mapView)
         print("Location = \(location)")

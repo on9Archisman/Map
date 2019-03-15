@@ -24,7 +24,7 @@
                                 <gestureRecognizers/>
                                 <connections>
                                     <outlet property="delegate" destination="BYZ-38-t0r" id="iNb-Ox-TjU"/>
-                                    <outletCollection property="gestureRecognizers" destination="P3b-QE-eO5" appends="YES" id="tP3-mX-mwg"/>
+                                    <outletCollection property="gestureRecognizers" destination="dpp-iw-gr8" appends="YES" id="6dM-NG-Ukw"/>
                                 </connections>
                             </mapView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="detailDisclosure" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TGD-Ff-gvC">
@@ -93,11 +93,11 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
-                <tapGestureRecognizer id="P3b-QE-eO5">
+                <pongPressGestureRecognizer delaysTouchesEnded="NO" allowableMovement="10" minimumPressDuration="0.5" id="dpp-iw-gr8">
                     <connections>
-                        <action selector="actionAddPinIntoMap:" destination="BYZ-38-t0r" id="QZx-lh-seY"/>
+                        <action selector="actionAddAnnotationWithLongGesture:" destination="BYZ-38-t0r" id="M2g-Rz-Ksi"/>
                     </connections>
-                </tapGestureRecognizer>
+                </pongPressGestureRecognizer>
             </objects>
         </scene>
     </scenes>
