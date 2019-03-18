@@ -139,8 +139,34 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         else
         {
             let annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: "rest") ?? MKAnnotationView()
+            
             annotationView.image = UIImage(named: "iconPin")
+            annotationView.canShowCallout = true
+            annotationView.isDraggable = true
+            
             return annotationView
+        }
+    }
+    
+    func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, didChange newState: MKAnnotationView.DragState, fromOldState oldState: MKAnnotationView.DragState)
+    {
+        switch newState
+        {
+        case .starting:
+            view.dragState = .dragging
+        case .ending, .canceling:
+            // New Coordinates
+            if let newCoordinate = view.annotation?.coordinate
+            {
+                print("New Coordinate =",newCoordinate)
+                
+                if let userLocation = locationManager.location?.coordinate
+                {
+                    addRouteToMapView(source: userLocation, destination: newCoordinate)
+                }
+            }
+            view.dragState = .none
+        default: break
         }
     }
     
@@ -165,16 +191,16 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
     @IBAction func actionAddAnnotationWithLongGesture(_ sender: UILongPressGestureRecognizer)
     {
         let location = sender.location(in: mapView)
-        print("Location = \(location)")
+        print("Long PressLocation = \(location)")
         
         let coordinate: CLLocationCoordinate2D = mapView.convert(location, toCoordinateFrom: mapView)
-        print("Coordinate = \(coordinate)")
+        print("Long Press Coordinate = \(coordinate)")
         
         let annotation = MKPointAnnotation()
         
         annotation.coordinate = coordinate
-        annotation.title = "Pin"
-        annotation.subtitle = "Destination"
+        annotation.title = "Destination"
+        // annotation.subtitle = "Destination"
         
         mapView.removeAnnotations(mapView.annotations)
         
@@ -182,38 +208,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         
         if let userLocation = locationManager.location?.coordinate
         {
-            let sourcePlaceMark = MKPlacemark(coordinate: userLocation)
-            let destinationPlaceMark = MKPlacemark(coordinate: coordinate)
-            
-            let directionRequest = MKDirections.Request()
-            directionRequest.source = MKMapItem(placemark: sourcePlaceMark)
-            directionRequest.destination = MKMapItem(placemark: destinationPlaceMark)
-            directionRequest.transportType = .automobile
-            
-            let directions = MKDirections(request: directionRequest)
-            directions.calculate { (response, error) in
-                guard let directionResonse = response
-                    else
-                {
-                    if let error = error
-                    {
-                        print("we have error getting directions = \(error.localizedDescription)")
-                    }
-                    return
-                }
-                
-                //get route and assign to our route variable
-                self.route = directionResonse.routes[0]
-                self.flag = true
-                
-                //add rout to our mapview
-                self.mapView.removeOverlays(self.mapView.overlays)
-                self.mapView.addOverlay(self.route!.polyline, level: .aboveRoads)
-                
-                //setting rect of our mapview to fit the two locations
-                let rect = self.route!.polyline.boundingMapRect
-                self.mapView.setRegion(MKCoordinateRegion(rect), animated: true)
-            }
+            addRouteToMapView(source: userLocation, destination: coordinate)
         }
     }
     
@@ -274,6 +269,47 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
             //add rout to our mapview
             self.mapView.removeOverlays(self.mapView.overlays)
             self.mapView.addOverlay(self.route!.polyline, level: .aboveRoads)
+        }
+    }
+    
+    // Add Route To Mapview
+    func addRouteToMapView(source: CLLocationCoordinate2D, destination: CLLocationCoordinate2D)
+    {
+        let sourcePlaceMark = MKPlacemark(coordinate: source)
+        let destinationPlaceMark = MKPlacemark(coordinate: destination)
+        
+        let directionRequest = MKDirections.Request()
+        directionRequest.source = MKMapItem(placemark: sourcePlaceMark)
+        directionRequest.destination = MKMapItem(placemark: destinationPlaceMark)
+        directionRequest.transportType = .automobile
+        
+        let directions = MKDirections(request: directionRequest)
+        directions.calculate { (response, error) in
+            guard let directionResonse = response
+                else
+            {
+                if let error = error
+                {
+                    print("We have error getting directions = \(error.localizedDescription)")
+                }
+                
+                // If Faliure
+                self.mapView.removeOverlays(self.mapView.overlays)
+                
+                return
+            }
+            
+            //get route and assign to our route variable
+            self.route = directionResonse.routes[0]
+            self.flag = true
+            
+            //add route to our mapview
+            self.mapView.removeOverlays(self.mapView.overlays)
+            self.mapView.addOverlay(self.route!.polyline, level: .aboveRoads)
+            
+            //setting rect of our mapview to fit the two locations
+            let rect = self.route!.polyline.boundingMapRect
+            self.mapView.setRegion(MKCoordinateRegion(rect), animated: true)
         }
     }
 }
