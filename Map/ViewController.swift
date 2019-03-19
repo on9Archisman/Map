@@ -155,6 +155,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         case .starting:
             view.dragState = .dragging
         case .ending, .canceling:
+            view.dragState = .none
             // New Coordinates
             if let newCoordinate = view.annotation?.coordinate
             {
@@ -165,7 +166,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
                     addRouteToMapView(source: userLocation, destination: newCoordinate)
                 }
             }
-            view.dragState = .none
         default: break
         }
     }
