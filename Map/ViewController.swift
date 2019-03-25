@@ -164,9 +164,26 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
             {
                 print("New Coordinate =",newCoordinate)
                 
-                if let userLocation = locationManager.location?.coordinate
-                {
-                    addRouteToMapView(source: userLocation, destination: newCoordinate)
+                geocode(latitude: newCoordinate.latitude, longitude: newCoordinate.longitude) { (result, error) in
+                    
+                    print("geocode resut =", result as Any)
+                    print("geocode error =", error as Any)
+                    
+                    if let placemark = result?.first
+                    {
+                        //annotation.title = "\(placemark.thoroughfare ?? "") \(placemark.subLocality ?? "")"
+                        self.textField.text = "\(placemark.thoroughfare ?? "") \(placemark.subLocality ?? "")"
+                    }
+                    else
+                    {
+                        //annotation.title = "Destination"
+                        self.textField.text = "Destination"
+                    }
+                    
+                    if let userLocation = self.locationManager.location?.coordinate
+                    {
+                        self.addRouteToMapView(source: userLocation, destination: newCoordinate)
+                    }
                 }
             }
         default: break
@@ -243,16 +260,31 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         let annotation = MKPointAnnotation()
         
         annotation.coordinate = coordinate
-        annotation.title = "Destination"
-        // annotation.subtitle = "Destination"
         
-        mapView.removeAnnotations(mapView.annotations)
-        
-        mapView.addAnnotation(annotation)
-        
-        if let userLocation = locationManager.location?.coordinate
-        {
-            addRouteToMapView(source: userLocation, destination: coordinate)
+        geocode(latitude: coordinate.latitude, longitude: coordinate.longitude) { (result, error) in
+            
+            print("geocode resut =", result as Any)
+            print("geocode error =", error as Any)
+            
+            if let placemark = result?.first
+            {
+                annotation.title = "\(placemark.thoroughfare ?? "") \(placemark.subLocality ?? "")"
+                self.textField.text = "\(placemark.thoroughfare ?? "") \(placemark.subLocality ?? "")"
+            }
+            else
+            {
+                annotation.title = "Destination"
+                self.textField.text = "Destination"
+            }
+            
+            self.mapView.removeAnnotations(self.mapView.annotations)
+            
+            self.mapView.addAnnotation(annotation)
+            
+            if let userLocation = self.locationManager.location?.coordinate
+            {
+                self.addRouteToMapView(source: userLocation, destination: coordinate)
+            }
         }
     }
     
@@ -324,6 +356,22 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
             //setting rect of our mapview to fit the two locations
             let rect = self.route!.polyline.boundingMapRect
             self.mapView.setRegion(MKCoordinateRegion(rect), animated: true)
+        }
+    }
+    
+    // MARK: Reverse Geocode
+    func geocode(latitude: Double, longitude: Double, completion: @escaping (_ placemark: [CLPlacemark]?, _ error: Error?) -> Void)
+    {
+        CLGeocoder().reverseGeocodeLocation(CLLocation(latitude: latitude, longitude: longitude)) { placemark, error in
+            
+            guard let placemark = placemark, error == nil
+                else
+            {
+                completion(nil, error)
+                return
+            }
+            
+            completion(placemark, nil)
         }
     }
 }
