@@ -9,10 +9,12 @@
 import UIKit
 import CoreLocation
 import MapKit
+import GooglePlaces
 
 class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDelegate
 {
     @IBOutlet weak var mapView: MKMapView!
+    @IBOutlet weak var textField: UITextField!
     
     let locationManager = CLLocationManager()
     var route: MKRoute?
@@ -32,6 +34,34 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         */
     }
     
+    // MARK: CLLocation Manager Delegate
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus)
+    {
+        handleLocationAuthorizationStatus(status: status)
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation])
+    {
+        locationManager.stopUpdatingLocation()
+        
+        if let currentLocation = locations.last
+        {
+            print("CLLocationManager Location = \(currentLocation.coordinate.latitude), \(currentLocation.coordinate.longitude)")
+            
+            let span: MKCoordinateSpan = MKCoordinateSpan.init(latitudeDelta: 0.015, longitudeDelta: 0.015)
+            
+            let region: MKCoordinateRegion = MKCoordinateRegion.init(center: currentLocation.coordinate, span: span)
+            
+            mapView.setRegion(region, animated: true)
+        }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error)
+    {
+        print("CLLocationManager Error = \(error)")
+    }
+    
+    // MARK: Location Miscellaneous
     func handleLocationAuthorizationStatus(status: CLAuthorizationStatus)
     {
         print("CLLocationManager AuthorizationStatus = \(status.rawValue)")
@@ -69,37 +99,34 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         self.present(alertController, animated: true, completion: nil)
     }
     
-    // MARK: CLLocation Manager Delegate
-    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus)
-    {
-        handleLocationAuthorizationStatus(status: status)
-    }
-    
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation])
-    {
-        locationManager.stopUpdatingLocation()
-        
-        if let currentLocation = locations.last
-        {
-            print("CLLocationManager Location = \(currentLocation.coordinate.latitude), \(currentLocation.coordinate.longitude)")
-            
-            let span: MKCoordinateSpan = MKCoordinateSpan.init(latitudeDelta: 0.015, longitudeDelta: 0.015)
-            
-            let region: MKCoordinateRegion = MKCoordinateRegion.init(center: currentLocation.coordinate, span: span)
-            
-            mapView.setRegion(region, animated: true)
-        }
-    }
-    
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error)
-    {
-        print("CLLocationManager Error = \(error)")
-    }
-    
     // MARK: MKMapView Delegate
     func mapView(_ mapView: MKMapView, didUpdate userLocation: MKUserLocation)
     {
         print("Map View Delegates : Did Update User Location = \(userLocation.coordinate.latitude), \(userLocation.coordinate.longitude)")
+    }
+    
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView?
+    {
+        if annotation is MKUserLocation
+        {
+            /*
+             let annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: "user") ?? MKAnnotationView()
+             annotationView.image = UIImage(named: "iconUserLocation")
+             return annotationView
+             */
+            
+            return nil
+        }
+        else
+        {
+            let annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: "rest") ?? MKAnnotationView()
+            
+            annotationView.image = UIImage(named: "iconPin")
+            annotationView.canShowCallout = true
+            annotationView.isDraggable = true
+            
+            return annotationView
+        }
     }
     
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer
@@ -122,30 +149,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         renderer.lineWidth = 3.0
         
         return renderer
-    }
-    
-    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView?
-    {
-        if annotation is MKUserLocation
-        {
-            /*
-            let annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: "user") ?? MKAnnotationView()
-            annotationView.image = UIImage(named: "iconUserLocation")
-            return annotationView
-            */
-            
-            return nil
-        }
-        else
-        {
-            let annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: "rest") ?? MKAnnotationView()
-            
-            annotationView.image = UIImage(named: "iconPin")
-            annotationView.canShowCallout = true
-            annotationView.isDraggable = true
-            
-            return annotationView
-        }
     }
     
     func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, didChange newState: MKAnnotationView.DragState, fromOldState oldState: MKAnnotationView.DragState)
@@ -171,9 +174,50 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
     }
     
     // MARK: IBAction
+    @IBAction func actionTextFieldTapped(_ sender: UITextField)
+    {
+        textField.resignFirstResponder()
+        
+        let acController = GMSAutocompleteViewController()
+        acController.delegate = self
+        present(acController, animated: true, completion: nil)
+    }
+    
     @IBAction func actionUserLocation(_ sender: Any)
     {
         locationManager.startUpdatingLocation()
+    }
+    
+    @IBAction func actionMapType(_ sender: Any)
+    {
+        let actionSheet = UIAlertController(title: "The type of map to display", message: "Please select !!", preferredStyle: .actionSheet)
+        
+        let actionButtonStandard = UIAlertAction(title: "Standard", style: .default, handler: alertAction)
+        actionSheet.addAction(actionButtonStandard)
+        
+        let actionButtonSatellite = UIAlertAction(title: "Satellite", style: .default, handler: alertAction)
+        actionSheet.addAction(actionButtonSatellite)
+        
+        let actionButtonHybrid = UIAlertAction(title: "Hybrid", style: .default, handler: alertAction)
+        actionSheet.addAction(actionButtonHybrid)
+        
+        let actionButtonMutedStandard = UIAlertAction(title: "Muted Standard", style: .default, handler: alertAction)
+        actionSheet.addAction(actionButtonMutedStandard)
+        
+        let actionButtonSatelliteFlyover = UIAlertAction(title: "Satellite Flyover", style: .default, handler: alertAction)
+        actionSheet.addAction(actionButtonSatelliteFlyover)
+        
+        let actionButtonHybridFlyover = UIAlertAction(title: "Hybrid Flyover", style: .default, handler: alertAction)
+        actionSheet.addAction(actionButtonHybridFlyover)
+        
+        let actionButtonCancel = UIAlertAction(title: "Cancel", style: .cancel, handler: { action in
+            
+            self.dismiss(animated: true, completion: nil)
+        })
+        
+        actionSheet.addAction(actionButtonCancel)
+        
+        self.present(actionSheet, animated: true, completion: nil)
     }
     
     @IBAction func actionPinDescription(_ sender: Any)
@@ -212,38 +256,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         }
     }
     
-    @IBAction func actionMapType(_ sender: Any)
-    {
-        let actionSheet = UIAlertController(title: "The type of map to display", message: "Please select !!", preferredStyle: .actionSheet)
-        
-        let actionButtonStandard = UIAlertAction(title: "Standard", style: .default, handler: alertAction)
-        actionSheet.addAction(actionButtonStandard)
-        
-        let actionButtonSatellite = UIAlertAction(title: "Satellite", style: .default, handler: alertAction)
-        actionSheet.addAction(actionButtonSatellite)
-        
-        let actionButtonHybrid = UIAlertAction(title: "Hybrid", style: .default, handler: alertAction)
-        actionSheet.addAction(actionButtonHybrid)
-        
-        let actionButtonMutedStandard = UIAlertAction(title: "Muted Standard", style: .default, handler: alertAction)
-        actionSheet.addAction(actionButtonMutedStandard)
-        
-        let actionButtonSatelliteFlyover = UIAlertAction(title: "Satellite Flyover", style: .default, handler: alertAction)
-        actionSheet.addAction(actionButtonSatelliteFlyover)
-        
-        let actionButtonHybridFlyover = UIAlertAction(title: "Hybrid Flyover", style: .default, handler: alertAction)
-        actionSheet.addAction(actionButtonHybridFlyover)
-        
-        let actionButtonCancel = UIAlertAction(title: "Cancel", style: .cancel, handler: { action in
-            
-            self.dismiss(animated: true, completion: nil)
-        })
-        
-        actionSheet.addAction(actionButtonCancel)
-        
-        self.present(actionSheet, animated: true, completion: nil)
-    }
-    
+    // MARK: Map Type Miscellaneous
     func alertAction(action: UIAlertAction)
     {
         switch action.title
@@ -272,7 +285,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         }
     }
     
-    // Add Route To Mapview
+    // MARK: Add Route To Mapview
     func addRouteToMapView(source: CLLocationCoordinate2D, destination: CLLocationCoordinate2D)
     {
         let sourcePlaceMark = MKPlacemark(coordinate: source)
@@ -295,6 +308,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
                 
                 // If Faliure
                 self.mapView.removeOverlays(self.mapView.overlays)
+                self.flag = false
                 
                 return
             }
@@ -311,5 +325,63 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
             let rect = self.route!.polyline.boundingMapRect
             self.mapView.setRegion(MKCoordinateRegion(rect), animated: true)
         }
+    }
+}
+
+extension ViewController: GMSAutocompleteViewControllerDelegate
+{
+    func viewController(_ viewController: GMSAutocompleteViewController, didAutocompleteWith place: GMSPlace)
+    {
+        // Get the place from 'GMSAutocompleteViewController'
+        print("Place", place)
+        
+        var destinationName: String?
+        
+        if let name = place.name
+        {
+            destinationName = name
+        }
+        else
+        {
+            destinationName = "Destination"
+        }
+        
+        if let address = place.formattedAddress
+        {
+            textField.text = address
+        }
+        
+        if let coordinate = place.coordinate as CLLocationCoordinate2D?
+        {
+            // Add Annotation
+            let annotation = MKPointAnnotation()
+            
+            annotation.coordinate = coordinate
+            annotation.title = destinationName
+            
+            mapView.removeAnnotations(mapView.annotations)
+            
+            mapView.addAnnotation(annotation)
+            
+            if let userLocation = locationManager.location?.coordinate
+            {
+                addRouteToMapView(source: userLocation, destination: coordinate)
+            }
+        }
+        
+        // Dismiss the GMSAutocompleteViewController when something is selected
+        dismiss(animated: true, completion: nil)
+    }
+    
+    func viewController(_ viewController: GMSAutocompleteViewController, didFailAutocompleteWithError error: Error)
+    {
+        // Handle the error
+        print("Error: ", error.localizedDescription)
+    }
+    
+    func wasCancelled(_ viewController: GMSAutocompleteViewController)
+    {
+        // Dismiss when the user canceled the action
+        dismiss(animated: true, completion: nil)
     }
 }

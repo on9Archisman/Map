@@ -72,14 +72,29 @@
                                     <action selector="actionUserLocation:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ANq-9x-lVB"/>
                                 </connections>
                             </button>
+                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Search Place" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="ZDg-w2-ua2">
+                                <rect key="frame" x="16" y="20" width="288" height="40"/>
+                                <color key="backgroundColor" white="1" alpha="0.79799871575342451" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="h5S-4k-LPV"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="15"/>
+                                <textInputTraits key="textInputTraits" autocorrectionType="no" textContentType="location"/>
+                                <connections>
+                                    <action selector="actionTextFieldTapped:" destination="BYZ-38-t0r" eventType="editingDidBegin" id="twD-BS-Ott"/>
+                                </connections>
+                            </textField>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="g1U-PJ-G0q" secondAttribute="trailing" constant="16" id="3Ez-iQ-UIC"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="dka-qg-oxQ" secondAttribute="bottom" constant="16" id="45D-XV-awh"/>
+                            <constraint firstItem="ZDg-w2-ua2" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="6dw-xc-Sj4"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="TGD-Ff-gvC" secondAttribute="bottom" constant="16" id="Dyg-OO-264"/>
                             <constraint firstAttribute="bottom" secondItem="zWK-sI-vfs" secondAttribute="bottom" id="Mv7-FQ-weh"/>
+                            <constraint firstItem="ZDg-w2-ua2" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="PUB-gL-Wzk"/>
                             <constraint firstAttribute="trailing" secondItem="zWK-sI-vfs" secondAttribute="trailing" id="WUf-Ft-zti"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="ZDg-w2-ua2" secondAttribute="trailing" constant="16" id="fuM-Ad-KoU"/>
                             <constraint firstItem="TGD-Ff-gvC" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="hTU-R6-XDF"/>
                             <constraint firstItem="zWK-sI-vfs" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="kR7-5V-hGW"/>
                             <constraint firstItem="dka-qg-oxQ" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="mHt-cd-UU8"/>
@@ -90,6 +105,7 @@
                     </view>
                     <connections>
                         <outlet property="mapView" destination="zWK-sI-vfs" id="Bog-4Z-7t3"/>
+                        <outlet property="textField" destination="ZDg-w2-ua2" id="PXa-pE-UCA"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -99,6 +115,7 @@
                     </connections>
                 </pongPressGestureRecognizer>
             </objects>
+            <point key="canvasLocation" x="129.375" y="129.92957746478874"/>
         </scene>
     </scenes>
     <resources>

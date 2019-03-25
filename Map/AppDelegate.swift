@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import GooglePlaces
 
 @UIApplicationMain
 
@@ -16,7 +17,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool
     {
-        // Override point for customization after application launch.
+        // Set the Google Place API's autocomplete UI control
+        GMSPlacesClient.provideAPIKey("AIzaSyCuGF9ywfYoWYzyUpcEFTfVqrCTZE2EbLo")
+        
         return true
     }
 
