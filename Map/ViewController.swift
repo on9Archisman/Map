@@ -75,6 +75,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         case .authorizedWhenInUse, .authorizedAlways:
             print("Location services is running")
             locationManager.startUpdatingLocation()
+            
         case .denied:
             print("Location services were previously denied. Please enable location services for this app in Settings")
             statusDeniedAlert()
@@ -84,6 +85,8 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
             statusDeniedAlert()
         
         @unknown default:
+            //fatalError()
+            //fatalError(String)
             break
         }
     }
