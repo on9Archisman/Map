@@ -82,6 +82,9 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         case .restricted:
             print("Access to location services is restricted. Please enable location services for this app in Settings")
             statusDeniedAlert()
+        
+        @unknown default:
+            break
         }
     }
     
